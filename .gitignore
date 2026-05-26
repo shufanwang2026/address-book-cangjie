@@ -2,3 +2,4 @@ target/
 build/
 *.log
 *.tmp
+contacts.txt

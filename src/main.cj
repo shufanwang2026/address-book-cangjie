@@ -1,9 +1,14 @@
 package address_book
 
 import std.console.*
+import std.fs.*
+import std.io.*
 
 // 通讯录最大保存人数。这里使用固定容量数组，逻辑更接近大一阶段常见的数组练习。
 const MAX_CONTACTS = 100
+
+// 通讯录保存文件名。保存和加载功能都会使用这个文件。
+const DATA_FILE = "./contacts.txt"
 
 // Contact 表示一个联系人。
 // 用 class 把“姓名、电话、邮箱、地址”放在一起，比四个零散变量更好管理。
@@ -38,11 +43,13 @@ func readInput(tip: String): String {
 func showMenu(): Unit {
     println("")
     println("====== 简单通讯录系统 ======")
-    println("1. 添加联系人")
-    println("2. 查看所有联系人")
-    println("3. 按姓名查找联系人")
-    println("4. 修改联系人")
-    println("5. 删除联系人")
+    println("1. 录入联系人")
+    println("2. 删除联系人")
+    println("3. 显示所有联系人")
+    println("4. 按姓名查找联系人")
+    println("5. 保存到磁盘文件")
+    println("6. 从磁盘文件加载")
+    println("7. 修改联系人")
     println("0. 退出系统")
     println("==========================")
 }
@@ -167,6 +174,84 @@ func deleteContact(contacts: Array<Contact>, count: Int64): Int64 {
     return count - 1
 }
 
+// saveContacts 把通讯录保存到磁盘文件中。
+// 文件每一行保存一个联系人，四个字段之间用制表符 \t 分隔。
+func saveContacts(contacts: Array<Contact>, count: Int64): Unit {
+    let filePath: Path = Path(DATA_FILE)
+    var file: File = File(filePath, Write)
+
+    var i: Int64 = 0
+    while (i < count) {
+        let line = "${contacts[i].name}\t${contacts[i].phone}\t${contacts[i].email}\t${contacts[i].address}\n"
+        file.write(line.toArray())
+        i++
+    }
+
+    file.close()
+    println("Saving file: ${DATA_FILE}")
+    println("保存成功，共保存 ${count} 条联系人。")
+}
+
+// parseContactLine 把文件中的一行文字转换为一个 Contact。
+// 如果这一行格式不对，就返回 None，加载时会跳过这行。
+func parseContactLine(line: String): Option<Contact> {
+    var iter = line.lazySplit("\t")
+
+    match (iter.next()) {
+        case Some(name) =>
+            match (iter.next()) {
+                case Some(phone) =>
+                    match (iter.next()) {
+                        case Some(email) =>
+                            match (iter.next()) {
+                                case Some(address) => return Some(Contact(name, phone, email, address))
+                                case None => return None
+                            }
+                        case None => return None
+                    }
+                case None => return None
+            }
+        case None => return None
+    }
+}
+
+// loadContacts 从磁盘文件中读取联系人。
+// 读取成功后，会用文件中的内容覆盖当前内存里的通讯录。
+func loadContacts(contacts: Array<Contact>): Int64 {
+    let filePath: Path = Path(DATA_FILE)
+    if (!exists(filePath)) {
+        println("没有找到数据文件: ${DATA_FILE}")
+        return 0
+    }
+
+    var file: File = File(filePath, Read)
+    let allBytes: Array<Byte> = readToEnd(file)
+    file.close()
+
+    let content = String.fromUtf8(allBytes)
+    var count: Int64 = 0
+    var iter = content.lines()
+
+    while (true) {
+        match (iter.next()) {
+            case Some(line) =>
+                if (line != "" && count < contacts.size) {
+                    match (parseContactLine(line)) {
+                        case Some(contact) =>
+                            contacts[count] = contact
+                            count++
+                        case None =>
+                            println("跳过格式错误的数据行: ${line}")
+                    }
+                }
+            case None => break
+        }
+    }
+
+    println("加载成功，共加载 ${count} 条联系人。")
+    return count
+}
+
 main(): Int64 {
     // 创建一个最多能保存 MAX_CONTACTS 个联系人的数组。
     // {i => Contact("", "", "", "")} 表示给数组每个位置都创建一个空联系人。
@@ -183,13 +268,17 @@ main(): Int64 {
         if (choice == "1") {
             count = addContact(contacts, count)
         } else if (choice == "2") {
-            listContacts(contacts, count)
-        } else if (choice == "3") {
-            searchContact(contacts, count)
-        } else if (choice == "4") {
-            updateContact(contacts, count)
-        } else if (choice == "5") {
             count = deleteContact(contacts, count)
+        } else if (choice == "3") {
+            listContacts(contacts, count)
+        } else if (choice == "4") {
+            searchContact(contacts, count)
+        } else if (choice == "5") {
+            saveContacts(contacts, count)
+        } else if (choice == "6") {
+            count = loadContacts(contacts)
+        } else if (choice == "7") {
+            updateContact(contacts, count)
         } else if (choice == "0") {
             running = false
             println("感谢使用，再见。")

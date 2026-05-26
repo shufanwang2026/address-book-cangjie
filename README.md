@@ -4,11 +4,13 @@
 
 ## 功能
 
-- 添加联系人
-- 查看所有联系人
+- 录入联系人
+- 删除联系人
+- 显示所有联系人
 - 按姓名查找联系人
 - 修改联系人
-- 删除联系人
+- 保存联系人到磁盘文件
+- 从磁盘文件加载联系人
 - 退出系统
 
 ## 项目结构
@@ -22,6 +24,8 @@ address_book/
 │   └── main.cj        # 程序源码
 └── docs/
     ├── design.md      # 设计说明
+    ├── file-io-guide.md # 仓颉文件读写说明
+    ├── requirements-check.md # 题目要求对照检查
     └── usage.md       # 使用说明
 ```
 
@@ -53,6 +57,8 @@ chcp 65001
 - [CONTRIBUTING.md](CONTRIBUTING.md)：同学协作说明
 - [docs/design.md](docs/design.md)：系统设计说明
 - [docs/usage.md](docs/usage.md)：运行和测试建议
+- [docs/file-io-guide.md](docs/file-io-guide.md)：仓颉文件读写语法说明
+- [docs/requirements-check.md](docs/requirements-check.md)：题目要求对照检查
 - [scripts/github-login.ps1](scripts/github-login.ps1)：GitHub 登录脚本
 - [scripts/github-publish.ps1](scripts/github-publish.ps1)：创建仓库并推送脚本
 
@@ -80,7 +86,6 @@ chcp 65001
 
 ## 适合继续完善的方向
 
-- 增加文件保存功能，让关闭程序后联系人不会丢失
 - 增加手机号格式检查
 - 支持按电话查找联系人
 - 把菜单选择改成 `match` 写法
