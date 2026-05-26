@@ -70,6 +70,8 @@ chcp 65001
 .\scripts\github-publish.ps1
 ```
 
+也可以直接双击项目根目录下的 `github-login.cmd` 登录，再双击 `github-publish.cmd` 发布。
+
 默认会创建公开仓库 `address-book-cangjie`。如果想改仓库名：
 
 ```powershell
