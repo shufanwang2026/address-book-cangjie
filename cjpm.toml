@@ -1,0 +1,10 @@
+[package]
+  cjc-version = "0.53.1"
+  name = "address_book"
+  description = "A simple Cangjie console address book for freshman-level practice."
+  version = "1.0.0"
+  compile-option = ""
+  link-option = ""
+  output-type = "executable"
+
+[dependencies]
